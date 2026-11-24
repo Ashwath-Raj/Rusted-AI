@@ -1,240 +1,349 @@
-# Unsensored Agent
-## Executive Summary & Technical Vision
+<!--
+  RUSTED AI
+  A Rust-native, local-first autonomous computer operator.
+-->
 
-### 1. Project Vision
+<div align="center">
 
-**Unsensored Agent is a fully local, Rust-native autonomous AI computer-operation platform designed to transform a large language model from a conversational assistant into an autonomous digital operator.**
+# RUSTED AI
 
-The system gives an AI model the ability to understand natural-language instructions, perceive a graphical desktop, reason about computer state, plan actions, interact with the operating system, execute tasks and verify their outcomes.
+### The local AI computer operator. Engineered in Rust.
 
-Unlike conventional AI assistants that primarily generate text or rely on cloud-hosted agent platforms, Unsensored Agent is designed around local inference, independently controlled execution infrastructure and isolated virtual-machine environments.
+**See the screen. Understand the task. Operate the machine. Verify the result.**
 
-The fundamental objective is to build a personal AI operating environment in which the user retains control over the model, execution environment, permissions and data.
+[![Rust](https://img.shields.io/badge/BUILT_WITH-RUST-CE422B?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Local First](https://img.shields.io/badge/LOCAL--FIRST-111827?style=for-the-badge&logo=linux&logoColor=white)](#design-principles)
+[![Inference](https://img.shields.io/badge/INFERENCE-ON_DEVICE-2563EB?style=for-the-badge)](#intelligence-layer)
+[![Virtualization](https://img.shields.io/badge/EXECUTION-QEMU-7C3AED?style=for-the-badge)](#isolated-execution)
 
-### 2. What We Are Building
+<br />
 
-Unsensored Agent is not another chatbot or an interface around an existing AI agent framework.
+**RUSTED AI** is a Rust-native, local-first autonomous computer-operation platform.
 
-It is an autonomous computer-operation system.
+It is designed to turn a multimodal language model into an agent that can perceive a desktop, reason about what needs to happen, use computer tools, and verify the outcome — within an execution environment controlled by the user.
 
-A user can provide an instruction such as:
+<br />
 
-> Organize my development directory, identify duplicate files, inspect the project documentation, resolve routine configuration issues and prepare a summary of the changes.
+[Project Vision](#-project-vision) ·
+[Architecture](#-architecture) ·
+[Design Principles](#-design-principles) ·
+[Roadmap](#-development-status)
 
-The agent should be capable of:
-
-1. **Understanding:** Interpret natural-language instructions and determine the intended outcome.
-2. **Planning:** Decompose complex instructions into executable steps.
-3. **Perception:** Inspect screenshots and understand the graphical environment.
-4. **Tool selection:** Select appropriate filesystem, shell, browser or GUI operations.
-5. **Execution:** Perform actions inside an isolated Ubuntu virtual machine.
-6. **Observation:** Capture execution results and inspect the updated environment.
-7. **Recovery:** Identify failures, adapt its plan and retry appropriate operations.
-8. **Verification:** Confirm whether the requested outcome was actually achieved.
-9. **Reporting:** Provide a transparent account of completed, unsuccessful and pending actions.
-
-### 3. Core Architecture
-
-The architecture follows a single-model, deterministic-execution approach.
-
-**A. Intelligence Layer — Gemma 4**
-
-The primary reasoning and perception engine is Gemma 4 12B QAT Uncensored, using its multimodal capabilities.
-
-It is responsible for:
-- Natural-language understanding.
-- Multi-step reasoning and planning.
-- Screenshot interpretation and visual perception.
-- Tool selection and structured tool requests.
-- Evaluating execution observations.
-- Adapting plans when unexpected conditions occur.
-
-One neural model handles both visual understanding and reasoning. No separate System One neural model is introduced.
-
-**B. Agent Orchestration — Rust**
-
-The orchestration layer manages the complete agent lifecycle.
-
-Responsibilities include:
-- Task planning and execution state.
-- Tool registration and dispatch.
-- Context and execution history.
-- Agent state transitions.
-- Retry and recovery mechanisms.
-- Coordination between inference and execution.
-
-**C. System One — Deterministic Rust Decision Engine**
-
-Rather than introducing another neural model, fast operational decisions are implemented directly in Rust.
-
-This layer handles:
-- Tool-request validation.
-- Permission checks.
-- Risk classification.
-- Execution routing.
-- Retry conditions.
-- Timeout handling.
-- State validation.
-- Human-approval requirements.
-
-Gemma proposes actions; the Rust decision engine determines whether and how those actions may proceed.
-
-**D. Tool Runtime — Rust**
-
-The tool runtime provides controlled access to the computer environment.
-
-Its capabilities include:
-
-| Tool category | Responsibilities |
-|---|---|
-| Filesystem | Read, write, create, move, organize and inspect files |
-| Shell | Execute terminal commands and capture results |
-| Keyboard | Send keyboard events |
-| Mouse | Click, move, scroll and interact with desktop elements |
-| Browser | Navigate and interact with web interfaces |
-| Screen capture | Capture desktop screenshots for visual reasoning |
-| Application control | Launch, inspect and manage applications |
-
-Every operation is exposed through typed interfaces and controlled execution policies.
-
-**E. Isolation Infrastructure — QEMU / Ubuntu VM**
-
-All potentially destructive computer interactions are intended to take place inside an isolated Ubuntu virtual machine.
-
-The host Ubuntu installation serves as the management and control environment, while the guest VM serves as the agent's operational environment.
-
-Communication and control will use:
-- QEMU management interfaces, including QMP.
-- SSH or guest communication mechanisms.
-- VM display and screenshot capture.
-- Controlled keyboard and mouse event injection.
-
-The agent must not have unrestricted access to the host operating system.
-
-**F. Control Room — Rust-Based User Interface**
-
-The Control Room is the central supervision interface.
-
-It provides:
-- Natural-language task submission.
-- Task execution monitoring.
-- Current agent activity.
-- Tool-call inspection.
-- Execution logs.
-- Screenshot and observation history.
-- Approval and rejection controls.
-- Task completion reports.
-- Error and recovery visibility.
-
-### 4. Technology Direction
-
-| Layer | Technology |
-|---|---|
-| Application language | Rust |
-| Host environment | Ubuntu Linux |
-| Virtualization | QEMU |
-| Guest environment | Ubuntu Linux VM |
-| Local intelligence | Gemma 4 12B QAT Uncensored |
-| Inference integration | Rust-native inference runtime |
-| Asynchronous execution | Tokio |
-| Backend API | Axum |
-| Serialization | Serde |
-| Persistent storage | SQLite / SQLx |
-| VM communication | QMP / SSH |
-| GUI interaction | Rust-based input drivers |
-| Browser automation | Rust-based browser-control integration |
-| Logging and observability | tracing |
-| User interface | Rust-based desktop/web UI |
-
-The exact inference runtime and model-format compatibility must be validated before final selection.
-
-**Language constraint:** All first-party application logic, orchestration, tools, backend and interface implementations must be written in Rust. No Python, JavaScript, TypeScript, Node.js or external agent frameworks are part of the application architecture.
-
-External infrastructure such as QEMU, Ubuntu and the inference model itself remains independent of the Rust application code.
-
-### 5. Execution Philosophy
-
-The fundamental operating principle is:
-
-**Perception → Reasoning → Validation → Execution → Observation → Verification**
-
-For example, when instructed to open a browser and inspect a GitHub repository:
-
-1. Gemma interprets the user's instruction.
-2. The orchestrator creates an execution plan.
-3. The Rust runtime captures the current VM desktop.
-4. Gemma identifies the browser and determines the appropriate interaction.
-5. The decision engine validates the requested operation.
-6. The Rust input driver executes the necessary keyboard and mouse events.
-7. The runtime captures the resulting screen.
-8. Gemma evaluates the new state and determines the next action.
-9. The process continues until the requested objective is achieved or an explicit failure is reported.
-
-The system must operate through feedback rather than blindly executing predetermined automation scripts.
-
-### 6. Security, Control and Observability
-
-Autonomous execution introduces risks that ordinary conversational AI does not face.
-
-Unsensored Agent therefore treats security and operational control as first-class architectural requirements.
-
-Core principles include:
-
-- VM-based execution isolation.
-- Least-privilege tool access.
-- Typed and validated tool interfaces.
-- Explicit execution permissions.
-- Human approval for sensitive or destructive operations.
-- Execution timeouts and resource limits.
-- Persistent action and error logs.
-- Verification of consequential operations.
-- Separation between model-generated requests and actual execution authority.
-
-An uncensored model is not inherently a capable or safe autonomous agent. Its operational permissions must always be enforced independently by the Rust runtime.
-
-### 7. What Makes Unsensored Agent Different?
-
-The project combines several capabilities into one self-hosted environment:
-
-**Local intelligence:** Model inference takes place under the user's control without depending on cloud-hosted inference.
-
-**Multimodal perception:** The same reasoning model can interpret the graphical desktop and make decisions based on visual observations.
-
-**Autonomous execution:** The agent can perform multi-step computer operations instead of merely suggesting commands.
-
-**Rust-native infrastructure:** The orchestration, decision engine, tools, execution management and interface are built in Rust.
-
-**Isolation:** Computer operations take place inside a dedicated virtualized environment.
-
-**Transparency:** Users can inspect plans, tool calls, observations, errors and execution results.
-
-**Human oversight:** The user retains authority over sensitive operations and system permissions.
-
-### 8. End Goal
-
-The long-term objective is a self-hosted AI execution environment capable of:
-
-- Operating a complete Linux desktop.
-- Managing files and directories.
-- Executing terminal commands.
-- Working with local development projects.
-- Operating browsers and graphical applications.
-- Automating repetitive workflows.
-- Performing multi-step technical tasks.
-- Recovering from execution failures.
-- Maintaining context across tasks.
-- Reporting verified outcomes.
-
-### 9. Executive Positioning
-
-**Unsensored Agent is a Rust-native, local-first autonomous AI computer-operation platform that transforms multimodal language models into operational agents capable of perceiving, reasoning about and interacting with real computer environments.**
-
-By combining a single local multimodal reasoning model, a deterministic Rust decision engine, a controlled computer-interaction runtime and QEMU-based execution isolation, the project aims to deliver a self-hosted alternative to cloud-dependent autonomous computer-use platforms.
-
-Its defining characteristic is the separation of intelligence, authorization and execution: the model reasons, Rust enforces control, and the isolated environment performs the work.
-
-**The fundamental product is not another chatbot, an Ollama wrapper or a collection of automation scripts. It is a locally controlled AI computer operator, engineered entirely in Rust.**
+</div>
 
 ---
 
-*Project status clarification: This document describes the intended architecture and engineering direction. It does not imply that all components have already been implemented or validated.*
+## ⚡ Project Vision
+
+Most AI assistants stop at producing an answer.
+
+**RUSTED AI aims to go further: it should be able to get work done on a computer.**
+
+Give it a natural-language task:
+
+> Organize my development workspace, inspect the project documentation, identify duplicate files, and prepare a report of the changes.
+
+The intended agent loop is:
+
+1. **Understand** the user's requested outcome.
+2. **Plan** a sequence of steps to reach it.
+3. **Perceive** the current computer state through screenshots and other observations.
+4. **Select tools** appropriate to the next operation.
+5. **Validate** the proposed operation against permissions and policy.
+6. **Execute** inside an isolated Ubuntu virtual machine.
+7. **Observe and recover** when the environment behaves unexpectedly.
+8. **Verify** the outcome and report what actually happened.
+
+The objective is not to generate a convincing description of completed work. It is to perform permitted actions, inspect their effects, and distinguish verified success from failure.
+
+## 🧠 Architecture
+
+RUSTED AI follows a **single-model, deterministic-execution architecture**.
+
+One multimodal model handles high-level reasoning and visual understanding. Rust owns orchestration, tool execution, permissions, state management, and the boundary between model-generated requests and real computer actions.
+
+```mermaid
+flowchart TB
+    U["User instruction"] --> C["Control Room"]
+    C --> O["Rust Agent Orchestrator"]
+    O <--> M["Gemma 4 · Local multimodal model"]
+    O --> D["Deterministic Rust decision engine"]
+    D --> P["Policy and permission checks"]
+    P --> T["Rust Tool Runtime"]
+    T <--> V["QEMU · Ubuntu guest VM"]
+    V --> S["Screen capture and execution observations"]
+    S --> M
+    O --> L["Task state · Logs · Verification"]
+    L --> C
+```
+
+### Intelligence Layer — One Gemma Model
+
+**Planned model:** Gemma 4 12B QAT Uncensored.
+
+The same multimodal model is intended to handle:
+
+- Natural-language instruction understanding.
+- Multi-step planning and reasoning.
+- Screenshot interpretation and visual perception.
+- Structured tool requests.
+- Interpretation of execution results.
+- Plan adjustment when observations differ from expectations.
+
+The model is the reasoning and perception component. It is **not** the authority that grants itself permissions or directly controls the host.
+
+> Model format, quantization, vision-projector compatibility, and GPU performance must be validated against the selected Rust inference runtime before the inference backend is considered final.
+
+### Agent Orchestration — Rust
+
+The orchestrator coordinates the task lifecycle:
+
+- Task creation and state transitions.
+- Planning and execution coordination.
+- Tool registry and dispatch.
+- Context and observation management.
+- Timeouts, retries, and recovery.
+- Completion and failure reporting.
+
+### System One — Deterministic Rust
+
+RUSTED AI does not introduce a second neural model for routine operational decisions.
+
+Fast, bounded decisions belong in ordinary Rust code:
+
+- Validate tool-call schemas and arguments.
+- Check permissions and execution policy.
+- Classify operation risk.
+- Enforce timeouts and resource limits.
+- Route tool requests.
+- Handle deterministic retry conditions.
+- Maintain valid execution states.
+- Require human approval where policy demands it.
+
+**Gemma proposes. Rust validates and authorizes. The runtime executes.**
+
+### Computer Tools — Rust
+
+The intended tool surface includes:
+
+| Tool | Intended Capability |
+|---|---|
+| Filesystem | Inspect, create, read, modify, move, and organize files |
+| Shell | Run commands and capture exit status and output |
+| Keyboard | Send key events to the guest environment |
+| Mouse | Move, click, scroll, and interact with UI elements |
+| Screen capture | Obtain visual observations of the guest desktop |
+| Browser | Navigate and interact with web interfaces |
+| Application control | Launch and manage applications in the guest |
+
+Tools should use typed inputs and outputs. Tool results must be returned to the orchestrator as observations, not treated as proof of success without verification.
+
+### Isolated Execution — QEMU and Ubuntu
+
+The host and guest have different responsibilities:
+
+- **Host Ubuntu:** Runs and supervises the RUSTED AI application.
+- **Ubuntu guest VM:** Provides the agent's operational desktop and execution environment.
+- **QEMU/QMP:** Provides VM lifecycle and supported input-control interfaces.
+- **Guest communication:** Uses controlled channels such as SSH where appropriate.
+- **Display observation:** Captures the guest screen for visual reasoning.
+
+The VM is an execution boundary, not a claim of perfect security. Guest configuration, shared folders, networking, device passthrough, and host integration must be reviewed as part of the threat model.
+
+Sensitive host resources should not be exposed to the guest by default.
+
+### Control Room — Rust UI
+
+The Control Room is the human supervision surface.
+
+Its intended responsibilities include:
+
+- Submit and manage tasks.
+- Inspect the current task and plan.
+- Observe agent activity and tool calls.
+- View execution logs and screenshots.
+- Approve or reject sensitive operations.
+- Inspect failures, retries, and verification results.
+
+The UI framework is not locked. A Rust-based UI implementation will be selected without moving application logic into JavaScript or TypeScript.
+
+---
+
+## 🔁 The Execution Loop
+
+RUSTED AI is designed around a closed feedback loop:
+
+```text
+      ┌──────────────────────────┐
+      │       User task          │
+      └────────────┬─────────────┘
+                   ▼
+      ┌──────────────────────────┐
+      │    Gemma: reason/plan    │
+      └────────────┬─────────────┘
+                   ▼
+      ┌──────────────────────────┐
+      │ Rust: validate/authorize │
+      └────────────┬─────────────┘
+                   ▼
+      ┌──────────────────────────┐
+      │ Rust tools: act in VM    │
+      └────────────┬─────────────┘
+                   ▼
+      ┌──────────────────────────┐
+      │ Observe the new VM state │
+      └────────────┬─────────────┘
+                   ▼
+      ┌──────────────────────────┐
+      │ Gemma: evaluate outcome  │
+      └────────────┬─────────────┘
+                   │
+           Continue or finish
+                   │
+                   └───────↺
+```
+
+A click is not a successful task. A command being launched is not proof that its intended effect occurred.
+
+The agent must inspect the resulting state and verify the requested outcome.
+
+---
+
+## 🛡️ Design Principles
+
+| Principle | Engineering Interpretation |
+|---|---|
+| **Rust-first** | All first-party application logic is implemented in Rust. |
+| **Local-first** | Inference and task execution are intended to run under user control, without a required cloud agent service. |
+| **One model** | A single multimodal model handles reasoning and visual perception. |
+| **Deterministic control** | Permissions, validation, routing, and state transitions are enforced by Rust. |
+| **Isolation by default** | Computer operations target a dedicated guest VM, not the host desktop. |
+| **Least privilege** | Tools receive only the capabilities and resources required for a task. |
+| **Human oversight** | Sensitive or destructive actions can be gated on explicit approval. |
+| **Observable execution** | Plans, tool calls, outputs, errors, and verification evidence are inspectable. |
+| **Honest outcomes** | The system reports partial completion and failure instead of inventing success. |
+
+### Security Boundary
+
+A model-generated tool call is untrusted input. It must never become executable authority by itself.
+
+Every action should pass through:
+
+1. Schema and argument validation.
+2. Capability and permission checks.
+3. Risk policy evaluation.
+4. Approval requirements, when applicable.
+5. Execution limits and controlled dispatch.
+6. Result capture and verification.
+
+An uncensored model is not inherently more capable, reliable, or safe.
+
+Safety comes from the runtime's enforcement, isolation, and operational design — not from the model's label.
+
+---
+
+## 🦀 Technology Direction
+
+| Layer | Intended Technology |
+|---|---|
+| Application language | **Rust** |
+| Async runtime | Tokio |
+| Backend/API | Axum |
+| Serialization | Serde |
+| Error handling | thiserror / anyhow |
+| Logging and tracing | tracing |
+| Persistence | SQLite with SQLx |
+| Local model | Gemma 4 12B QAT Uncensored |
+| Inference integration | Rust-native runtime; compatibility validation pending |
+| Virtualization | QEMU |
+| Guest OS | Ubuntu Linux |
+| VM management | QMP |
+| Guest communication | SSH / controlled guest channels |
+| GUI input | Rust-controlled keyboard and mouse events |
+| Browser control | Rust-based browser integration |
+| User interface | Rust-based UI; framework to be selected |
+
+**Language constraint:** First-party application code — orchestration, policy engine, tool runtime, backend, persistence integration, and UI — is to be written in Rust.
+
+Python, JavaScript, TypeScript, Node.js, and external agent frameworks are outside the application architecture.
+
+QEMU, Ubuntu, model weights, and other external infrastructure are dependencies, not code we claim to have rewritten in Rust.
+
+---
+
+## 🧭 Development Status
+
+RUSTED AI is an actively designed engineering project.
+
+The architecture below describes the intended direction, not a declaration that every subsystem is already implemented.
+
+| Area | Direction | Status |
+|---|---|---|
+| Product architecture | Single-model, Rust-native design | Defined |
+| Rust orchestration | Task lifecycle and coordination | Planned |
+| Inference backend | Gemma 4 through a Rust runtime | Compatibility validation required |
+| Vision pipeline | Screenshot input to the same model | Planned |
+| Deterministic decision engine | Policy, validation, and state control | Planned |
+| Tool runtime | Shell, filesystem, GUI, browser | Planned |
+| VM execution | QEMU-managed Ubuntu guest | Planned |
+| Control Room | Rust-based supervision UI | Planned |
+| Observability | Logs, observations, verification | Planned |
+
+### Suggested Implementation Sequence
+
+- [ ] Establish the Rust workspace and module boundaries.
+- [ ] Validate Gemma 4 text and vision inference using the selected Rust runtime.
+- [ ] Build the typed agent protocol and deterministic state machine.
+- [ ] Implement the policy and permission engine.
+- [ ] Integrate QEMU lifecycle management and guest communication.
+- [ ] Add screenshot capture and visual feedback.
+- [ ] Implement keyboard, mouse, shell, and filesystem tools.
+- [ ] Add execution verification, recovery, and audit logs.
+- [ ] Build the Control Room.
+- [ ] Validate isolation, failure handling, and end-to-end workflows.
+
+---
+
+## 💻 Development Constraints
+
+These are project-level constraints, not optional preferences:
+
+- First-party application code must be Rust.
+- No Ollama dependency or Ollama API integration.
+- No Python or Node.js agent backend.
+- No CrewAI, LangChain, or other external agent orchestration framework.
+- One neural model for reasoning and visual perception.
+- No direct model authority over host execution.
+- VM operations must be mediated by the Rust runtime.
+- Unverified actions must not be reported as completed.
+
+---
+
+## 🎯 Long-Term Objective
+
+The intended end state is a self-hosted computer operator that can:
+
+- Operate an Ubuntu desktop inside a VM.
+- Use terminal and graphical applications.
+- Create, inspect, modify, and organize files.
+- Work with local development projects.
+- Navigate and interact with browser interfaces.
+- Complete multi-step digital workflows.
+- Recover from unexpected execution states.
+- Retain task context and provide verifiable reports.
+
+RUSTED AI aims to make computer-use autonomy inspectable and controllable:
+
+**The model supplies intelligence. Rust supplies operational discipline. The isolated guest supplies the workspace.**
+
+---
+
+<div align="center">
+
+## RUSTED AI
+
+**Intelligence stays local. Execution stays controlled. The machine gets things done.**
+
+<sub>Designed with Rust · Built for local autonomy · Supervised by the user</sub>
+
+</div>
