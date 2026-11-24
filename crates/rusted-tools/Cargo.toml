@@ -1,0 +1,17 @@
+[package]
+name = "rusted-tools"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+description = "M0 scaffolding for typed guest tool registry and adapters (implemented in M4)."
+
+[lints]
+workspace = true
+
+[dependencies]
+rusted-types = { workspace = true }
+rusted-vm = { workspace = true }
+rusted-workspace = { workspace = true }
+thiserror = { workspace = true }

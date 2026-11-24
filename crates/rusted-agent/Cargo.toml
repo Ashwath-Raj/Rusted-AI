@@ -1,0 +1,19 @@
+[package]
+name = "rusted-agent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+description = "M0 scaffolding for task lifecycle, planning loop, and recovery coordination (implemented in M2)."
+
+[lints]
+workspace = true
+
+[dependencies]
+rusted-inference = { workspace = true }
+rusted-policy = { workspace = true }
+rusted-storage = { workspace = true }
+rusted-tools = { workspace = true }
+rusted-types = { workspace = true }
+thiserror = { workspace = true }

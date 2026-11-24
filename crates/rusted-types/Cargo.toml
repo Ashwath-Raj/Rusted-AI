@@ -1,0 +1,18 @@
+[package]
+name = "rusted-types"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+description = "Shared versioned domain types, IDs, and typed error taxonomy for RUSTED AI."
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

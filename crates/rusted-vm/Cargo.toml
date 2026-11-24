@@ -1,0 +1,15 @@
+[package]
+name = "rusted-vm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+description = "M0 scaffolding for QEMU/KVM guest lifecycle and QMP control (implemented in M3)."
+
+[lints]
+workspace = true
+
+[dependencies]
+rusted-types = { workspace = true }
+thiserror = { workspace = true }
